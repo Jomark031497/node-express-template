@@ -17,11 +17,14 @@ export const createUser = async (input: User) => {
   }
 };
 
-export const checkAuth = async (id: number) => {
+export const me = async (id: number) => {
   try {
     const user = await prisma.user.findUnique({
       where: {
         id,
+      },
+      include: {
+        tasks: true,
       },
     });
 

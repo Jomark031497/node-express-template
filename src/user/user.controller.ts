@@ -52,7 +52,7 @@ export const me = async (req: Request, res: Response) => {
   if (!req.session.userId) return res.status(401).json({ error: 'unauthorized' });
 
   try {
-    const user = await userService.checkAuth(req.session.userId);
+    const user = await userService.me(req.session.userId);
 
     if (!user) return res.status(401).json({ error: 'unauthorized' });
 
