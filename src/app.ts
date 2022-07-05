@@ -1,6 +1,7 @@
 import express from 'express';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
+import cors from 'cors';
 import Redis from 'ioredis';
 import router from './routes';
 
@@ -11,8 +12,14 @@ const redis = new Redis(<string>process.env.REDIS_URL);
 
 app.use(express.json());
 app.use(
+  cors({
+    credentials: true,
+    origin: process.env.CLIENT_URL,
+  })
+);
+app.use(
   session({
-    name: 'mid',
+    name: 'qid',
     secret: <string>process.env.SECRET,
     saveUninitialized: false,
     resave: false,
@@ -20,7 +27,7 @@ app.use(
       client: redis,
     }),
     cookie: {
-      maxAge: 1000 * 10,
+      maxAge: 1000 * 60 * 60 * 24,
       httpOnly: true,
       // sameSite: 'lax',
       // secure: true,
