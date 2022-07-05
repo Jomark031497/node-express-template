@@ -1,5 +1,5 @@
 {
-  "name": "tao-of-node",
+  "name": "node-express-template",
   "version": "1.0.0",
   "main": "dist/server.js",
   "license": "MIT",
