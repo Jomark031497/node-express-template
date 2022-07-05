@@ -25,7 +25,7 @@ const main = async () => {
         client: redis,
       }),
       cookie: {
-        maxAge: 1000 * 60 * 60 * 24,
+        maxAge: 1000 * 10,
         httpOnly: true,
         // sameSite: 'lax',
         // secure: true,

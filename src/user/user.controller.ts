@@ -62,3 +62,7 @@ export const me = async (req: Request, res: Response) => {
     return res.status(500).json({ error: 'something went wrong' });
   }
 };
+
+export const protectedRoute = async (_: Request, res: Response) => {
+  res.send('Hello I am protected');
+};
