@@ -15,3 +15,4 @@ TODO:
 
 - Custom Error Handling
 - Swagger
+- Jest & Playwright(?)
