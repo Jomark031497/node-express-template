@@ -1,5 +1,6 @@
+import { verify } from 'argon2';
 import { Request, Response } from 'express';
-import { userService } from '.';
+import { omitPassword, userService } from '.';
 import logger from '../utils/logger';
 import prisma from '../utils/prisma';
 import { Error } from './user.types';
@@ -8,13 +9,8 @@ export const signUp = async (req: Request, res: Response) => {
   const { username, email } = req.body;
   const errors: Error = {};
 
-  const usernameExists = await prisma.user.findUnique({
-    where: { username },
-  });
-
-  const emailExists = await prisma.user.findUnique({
-    where: { email },
-  });
+  const usernameExists = await prisma.user.findUnique({ where: { username } });
+  const emailExists = await prisma.user.findUnique({ where: { email } });
 
   if (usernameExists) errors.username = 'Username is already taken';
   if (emailExists) errors.email = 'Username is already taken';
@@ -22,7 +18,10 @@ export const signUp = async (req: Request, res: Response) => {
 
   try {
     const user = await userService.createUser(req.body);
-    return res.status(200).json(user);
+
+    req.session.userId = user.id;
+
+    return res.status(200).json(omitPassword(user));
   } catch (error) {
     logger.error(error);
     return res.status(500).json({ error: 'something went wrong' });
@@ -32,7 +31,34 @@ export const signUp = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
-  if (username || password) return res.status(200).json({ success: true });
+  const user = await prisma.user.findUnique({ where: { username } });
 
-  return res.status(200).json({ success: true });
+  if (!user) return res.status(400).json({ error: 'user not found' });
+
+  const passwordMatched = await verify(user.password, password);
+  if (!passwordMatched) return res.status(400).json({ error: 'user not found' });
+
+  try {
+    req.session.userId = user.id;
+
+    return res.status(200).json(omitPassword(user));
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).json({ error: 'something went wrong' });
+  }
+};
+
+export const me = async (req: Request, res: Response) => {
+  if (!req.session.userId) return res.status(401).json({ error: 'unauthorized' });
+
+  try {
+    const user = await userService.checkAuth(req.session.userId);
+
+    if (!user) return res.status(401).json({ error: 'unauthorized' });
+
+    return res.status(200).json(omitPassword(user));
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).json({ error: 'something went wrong' });
+  }
 };

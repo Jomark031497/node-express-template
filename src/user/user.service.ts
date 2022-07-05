@@ -1,6 +1,5 @@
 import { User } from '@prisma/client';
 import { hash } from 'argon2';
-import omitPassword from '../utils/omitPassword';
 import prisma from '../utils/prisma';
 
 export const createUser = async (input: User) => {
@@ -11,9 +10,22 @@ export const createUser = async (input: User) => {
         password: await hash(input.password),
       },
     });
-    const userWithoutPassword = omitPassword(user);
 
-    return userWithoutPassword;
+    return user;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+export const checkAuth = async (id: number) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return user;
   } catch (error) {
     throw new Error(error);
   }

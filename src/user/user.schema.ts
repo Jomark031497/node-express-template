@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const schema = z.object({
+export const signUpSchema = z.object({
   username: z
     .string({
       required_error: 'Please enter a valid username',
@@ -22,4 +22,17 @@ const schema = z.object({
     .max(60, 'password must not exceed 60 characters long'),
 });
 
-export default schema;
+export const loginSchema = z.object({
+  username: z
+    .string({
+      required_error: 'Please enter a valid username',
+    })
+    .min(4, 'username must be at least 4 characters long')
+    .max(255),
+  password: z
+    .string({
+      required_error: 'Please enter a valid password',
+    })
+    .min(6, 'password must be at least 6 characters long')
+    .max(60, 'password must not exceed 60 characters long'),
+});
