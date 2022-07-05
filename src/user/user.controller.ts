@@ -63,6 +63,23 @@ export const me = async (req: Request, res: Response) => {
   }
 };
 
+export const logout = async (req: Request, res: Response) => {
+  if (!req.session.userId) return res.status(401).json({ error: 'unauthorized' });
+
+  try {
+    req.session.destroy((err) => {
+      if (err) return res.status(500).json(err);
+
+      return null;
+    });
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).json({ error: 'something went wrong' });
+  }
+};
+
 export const protectedRoute = async (_: Request, res: Response) => {
   res.send('Hello I am protected');
 };
